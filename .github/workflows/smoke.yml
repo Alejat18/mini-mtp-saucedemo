@@ -1,1 +1,36 @@
+name: Suite smoke
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Pruebas smoke SauceDemo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Ejecutar la suite smoke
+        run: mvn -B test
+        env:
+          SAUCE_USER: ${{ secrets.SAUCE_USER }}
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+
+      - name: Publicar el reporte JUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-junit
+          path: target/surefire-reports/
 
